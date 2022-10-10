@@ -189,6 +189,25 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+    @app.route('/questions/search', methods=['POST'])
+    def get_questions_by_search():
+
+        body = request.get_json()
+
+        search_question = body.get('searchTerm')
+        index = Question.query.filter(Question.question.ilike('%'+search_question+'%')).all()
+        total_questions = len(index)
+        
+        if index:
+            current_questions = pagination(request, index)
+
+            return jsonify({
+                'success': True,
+                'questions': current_questions,
+                'total_questions': total_questions,
+            })
+        else:
+            abort(404)
     
     """
     @TODO:
@@ -218,9 +237,10 @@ def create_app(test_config=None):
                         'questions':formatted_questions,
                         'current_category': current_category,
                         })
-        except:
+        except Exception as e:
+            print(e)
             abort(422)
-    
+            
     """
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
@@ -261,23 +281,17 @@ def create_app(test_config=None):
                 print(random_question)
                 return jsonify({
                     'success':True,
-                    'question': random_question,
+                    'questions': random_question,
                 })
             else:
                 return jsonify({
                     'success':False,
                     'questions': []
                 })
-            """formatted_questions = [i.format() for i in question]
-            print(formatted_questions)
-            print(question)
-            random = (random.choice(formatted_questions)if formatted_questions else None)"""
-            
+
         except Exception as e:
             print(e)
             abort(422)
-
-            
 
     """
     @TODO:

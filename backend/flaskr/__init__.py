@@ -195,7 +195,7 @@ def create_app(test_config=None):
         body = request.get_json()
 
         search_question = body.get('searchTerm')
-        index = Question.query.filter(Question.question.ilike('%'+search_question+'%')).all()
+        index = Question.query.filter(Question.question.ilike(f"%{search_question}%")).all()
         total_questions = len(index)
         
         if index:
@@ -264,7 +264,8 @@ def create_app(test_config=None):
             if quiz_category:
                 category_id = int(quiz_category['id'])
                 if category_id == 0:
-                    question = Question.query.all()
+                    question = Question.query.filter(Question.question.isnot(None)).all()
+                    print(question)
                 else:
                     question = Question.query.filter_by( category = quiz_category['id']).all()
             else:
@@ -281,7 +282,7 @@ def create_app(test_config=None):
                 print(random_question)
                 return jsonify({
                     'success':True,
-                    'questions': random_question,
+                    'question': random_question,
                 })
             else:
                 return jsonify({

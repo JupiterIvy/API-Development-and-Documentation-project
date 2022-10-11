@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from flaskr import create_app
 from models import setup_db, Question, Category
 
+load_dotenv()
+
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
@@ -14,12 +16,13 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app()
         self.client = self.app.test_client
+
         self.database_name = "trivia_test"
         self.DB_PASSWORD = os.getenv("DB_PASSWORD")
         self.DB_USER = os.getenv("DB_USER")
         self.DB_HOST = os.getenv("DB_HOST")
         self.database_path = 'postgresql://{}:{}@{}/{}'.format(
-            DB_USER, DB_PASSWORD, DB_HOST, database_name
+            self.DB_USER, self.DB_PASSWORD, self.DB_HOST, self.database_name
         )
         setup_db(self.app, self.database_path)
 
@@ -93,7 +96,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], 'unprocessable')
     
     def test_question_search(self):
-        res = self.client().post("/questions/search", json={"search_question":"World"})
+        res = self.client().post("/questions/search", json={"searchTerm":"Which"})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -102,7 +105,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data["questions"]))
 
     def test_invalid_question_search(self):
-        res = self.client().post("/questions/search/1", json={"search_question":"wqewqe"})
+        res = self.client().post("/questions/search/1", json={"search_question":"actor"})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -127,12 +130,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], 'method not allowed')
 
     def test_delete_question(self):
-        res = self.client().delete("/questions/12")
+        res = self.client().delete("/questions/4")
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertEqual(data["deleted"], 12)
+        self.assertEqual(data["deleted"], 4)
 
     def test_error_in_delete_question(self):
         res = self.client().delete("questions/1000")
@@ -148,7 +151,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
-        self.assertTrue(data["questions"])
+        self.assertTrue(data["question"])
 
     def test_error_in_quiz(self):
         res = self.client().post("/quizzes/1", json={"quiz_category":{'id':10000}, "previous_questions":[]})

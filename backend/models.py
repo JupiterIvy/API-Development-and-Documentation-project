@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 from dotenv import load_dotenv
 
+load_dotenv()
+
 database_name = 'trivia'
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_USER = os.getenv("DB_USER")
